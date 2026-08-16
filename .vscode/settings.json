@@ -1,0 +1,12 @@
+// to avoid compiler errors when using Cloneflags field in the SycProcAttr field, which is only available on linux machines.
+// we bypass that check via this local configuration
+{
+    "go.toolsEnvVars": {
+        "GOOS": "linux",
+        "GOARCH": "amd64"
+    },
+    "go.testEnvVars": {
+        "GOOS": "linux",
+        "GOARCH": "amd64"
+    }
+}
