@@ -1,6 +1,7 @@
 package main
 
 import (
+	"docker-engine/utils"
 	"log"
 	"os"
 	"os/exec"
@@ -17,9 +18,11 @@ func run() {
 	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[2:]...)...)
 
 	// link current shell to process
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	utils.LinkIOStreamsToCurrentShell(cmd, utils.IOStreams{
+		STDIN:  os.Stdin,
+		STDOUT: os.Stdout,
+		STDERR: os.Stderr,
+	})
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWNS | syscall.CLONE_NEWPID,
@@ -46,9 +49,11 @@ func child() {
 		log.Println("error moving to root dir, err=", err)
 	}
 	command := exec.Command("/bin/sh", "-c", "ls -a && (mount --make-rprivate / || true); (mount -t proc proc /proc || true)")
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
+	utils.LinkIOStreamsToCurrentShell(command, utils.IOStreams{
+		STDIN:  os.Stdin,
+		STDOUT: os.Stdout,
+		STDERR: os.Stderr,
+	})
 	_ = command.Run() // ignore errors, these may fail in container environments
 
 	targetCmd := os.Args[2]
@@ -59,10 +64,11 @@ func child() {
 	}
 	// since we are using alpine linux, /bin/bash is unavailable.
 	command = exec.Command("/bin/sh", "-c", shellCmd)
-	// TODO: write a helper to do the below wiring
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
+	utils.LinkIOStreamsToCurrentShell(command, utils.IOStreams{
+		STDIN:  os.Stdin,
+		STDOUT: os.Stdout,
+		STDERR: os.Stderr,
+	})
 	err = command.Run()
 	if err != nil {
 		log.Println("error running command, err=", err)
