@@ -1,0 +1,1 @@
+download alpine rootfs from <a href="https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/armv7/alpine-minirootfs-3.24.1-armv7.tar.gz">link</a> before running this code. Also, you will need to run this in a linux VM or a linux machine as the code uses linux-specific primitives.
